@@ -1,0 +1,9 @@
+[package]
+name = "kalidasa"
+version = "0.1.0"
+authors = ["Wyatt Arent <hello@wyatt.engineer>"]
+
+[dependencies]
+snips-nlu-lib = { git = "https://github.com/talkative-ai/snips-nlu-rs", branch = "master" }
+redis = "0.8.0"
+hyper = "0.11"
