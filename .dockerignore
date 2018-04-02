@@ -1,0 +1,3 @@
+.git
+target
+!target/x86_64-unknown-linux-musl/debug/kalidasa
