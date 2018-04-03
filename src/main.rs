@@ -22,10 +22,9 @@ use snips_nlu_lib::{BytesBasedConfiguration, SnipsNluEngine};
 use redis::Commands;
 
 static MISSING: &[u8] = b"Missing field";
+static BAD_CONFIGURATION: &[u8] = b"Bad configuration";
 
 struct Kalidasa;
-
-const PHRASE: &'static str = "Hello, World!";
 
 impl Service for Kalidasa {
     type Request = Request;
@@ -39,6 +38,14 @@ impl Service for Kalidasa {
         let response = Response::new();
 
         match (req.method(), req.path()) {
+            (&Method::Get, "/healthz") => {
+                // TODO: Check redis connection
+                Box::new(
+                    futures::future::ok(
+                        Response::new().with_body("OK")
+                    )
+                )
+            },
             (&Method::Post, "/v1/parse") => {
                 Box::new(
                     req.body().concat2().map(|b| {
@@ -60,7 +67,7 @@ impl Service for Kalidasa {
                             n
                         } else {
                             return Response::new()
-                                .with_body(MISSING)
+                                .with_body(BAD_CONFIGURATION)
                         };
 
                         let configuration = match BytesBasedConfiguration::new(config_string.as_bytes()) {
@@ -86,6 +93,7 @@ impl Service for Kalidasa {
 }
 
 fn get_trained_data(key: &str) -> redis::RedisResult<String> {
+    // TODO: Make connection persistent
     let client = try!(redis::Client::open("redis://redis/"));
     let con = try!(client.get_connection());
     con.get(key)
